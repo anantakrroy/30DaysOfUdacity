@@ -3,9 +3,7 @@
 <details>
 <summary>Day 1 - Relational Databases and SQL</summary>
 
-<p>
-    
-   1. A **database** is a collection of data. A **database system** is a system of storing collections of data in some organised way.Databases maybe *relational* or *non-relational*.
+1. A **database** is a collection of data. A **database system** is a system of storing collections of data in some organised way.Databases maybe *relational* or *non-relational*.
 
    2. **Features of DB-**
    - *Persistence:* Access data later after it was created.
