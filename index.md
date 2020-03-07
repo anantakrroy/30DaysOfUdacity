@@ -3,31 +3,31 @@
 <details>
 <summary>Day 1 - Relational Databases and SQL</summary>
 
-1. A **database** is a collection of data. A **database system** is a system of storing collections of data in some organised way.Databases maybe *relational* or *non-relational*.
+1. A **database** is a collection of data. A **database system** is a system of storing  collections of data in some organised way.Databases maybe *relational* or *non-relational*.
 
-   2. **Features of DB-**
+2. **Features of DB-**
    - *Persistence:* Access data later after it was created.
    - *Concurrency control:* Allow multiple users of an application to read and write data at the same time.
    - *Ability to store data efficiently:* Allow multi types of data to be stored.
    - *Shared source of truth:* All users of an application can access the same data source.
 
-   3. **Relational databases**
+3. **Relational databases**
    - All the data is stored in form of *tables*
    - Each table is organised into rows and columns; with each column having its own *data type* and each row containing *set of data*
    - It has rules for enforcing data integrity such as *contraints and triggers*.
    eg. PostgreSQL, MySQL, SQLite, Oracle, SQL Server.
 
-   4. **Primary and Foreign Keys**
+4. **Primary and Foreign Keys**
    - Primary key is the unique identifier to uniquely identify an entire row of data. 
    - There might be multiple primary keys and the set of primary keys is called *composite key*.
    - Foreign key is an primary key from another table
    - Foreign keys establish relationship between tables.
 
-   5. **SQL**
+5. **SQL**
    - Query language for relational databases.
    - Every relational DB has its own flavor called *dialect*(eg. PostgreSQL, MySQL, SQLite, Oracle, SQL Server) but is based on the SQL standard.
 
-   6. **Some SQL exercises**
+6. **Some SQL exercises**
 
    ```
    -- SQL Practice Exercises
@@ -105,17 +105,18 @@
    ALTER TABLE vehicles ADD COLUMN vehicle_color varchar 
    ```
 
-   7. **Execution plan**
+7. **Execution plan**
    - Whenever we use an SQL query, the DBMS takes it and generates an *exection plan* for the DB engine to follow. 
    - Execution plan gives an idea of the *performance* of an SQL query since every step in a plan has a cost attached to it - higher the cost, more the execution time. 
    - Performance of a query directly affects the efficiency of interacting with a DB and hence while writing SQL queries we need to be aware of the performance trade offs.
    - Eg. for a simple *SELECT* query , the SQL application opens the file which has the table, runs a *Sequential scan* over the rows one by one and returns to the client.
-   - Eg. for a *JOIN* query, the process is more complicated than a simple sequential scan. A statement like 
-   ```
-    SELECT make, model from vehicles
-    JOIN drivers on vehicles.driver_id = drivers.id;  
-   ```
-    has the following three step execution plan
+   - Eg. for a *JOIN* query, the process is more complicated than a simple sequential scan. 
+      A query like - 
+         ```
+         SELECT make, model from vehicles
+         JOIN drivers on vehicles.driver_id = drivers.id;  
+         ```
+   has the following three step execution plan
     - Step 1: *Hash Join* - Most expensive step with highest cost. It is run to create a hash in memory and joins the two record sets going over every row.
     [Refer here](https://www.depesz.com/2013/05/09/explaining-the-unexplainable-part-3/#hash-join)
     - Step 2: *Sequential Scan or Seq Scan* - A sequential scan is run over the 'vehicles' table in the eg. since we need the model and make of the vehicles.
