@@ -1,5 +1,6 @@
 # Learn about the Web
 
+<hr>
 
 ### Day 1 - Relational Databases and SQL
 
