@@ -2,6 +2,8 @@
 
 <details>
 <summary>Day 1 - Relational Databases and SQL</summary>
+
+<p>
     
 1. A **database** is a collection of data. A **database system** is a system of storing collections of data in some organised way.Databases maybe *relational* or *non-relational*.
 
@@ -120,4 +122,6 @@ ALTER TABLE vehicles ADD COLUMN vehicle_color varchar
     [Refer here](https://www.depesz.com/2013/05/09/explaining-the-unexplainable-part-3/#hash-join)
     - Step 2: *Sequential Scan or Seq Scan* - A sequential scan is run over the 'vehicles' table in the eg. since we need the model and make of the vehicles.
     - Step 3: *Hash with seq scan on 'drivers' record* - With the seq scan , the join key is checked in the Hash returned from Step 1 to verify if it exists. If it does not , the row is dropped and the next row is scanned. At the end , we are left with the rows which are found in the Hash generated in step 1. 
+    
+</p>
 </details>
