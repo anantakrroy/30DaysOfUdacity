@@ -4,7 +4,7 @@
 
 ![Hits](https://hitcounter.pythonanywhere.com/count/tag.svg?url=https%3A%2F%2Fanantakrroy.github.io%2F30DaysOfUdacity%2F)
 
-<a href="https://www.buymeacoffee.com/YWM4ZAj"><img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Buy me a coffee"><span style="margin-left:15px;font-size:28px !important;">Buy me a coffee</span></a>
+
 
 ### Day 1 - Relational Databases and SQL
 
