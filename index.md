@@ -157,7 +157,7 @@
    - TCP/IP is a **connection based** protocol. All communication between parties is established over a connection. So a connection is established anytime the client and server need to communicate. 
    - Connecting *starts* and session. Ending the connection *stops* the session.
    - In a *database session*, many **transactions** can occur over a single session. Transactions are atomic pieces of work for the DB to perform as a whole. The sessions commit work to the database.
-   - **! Important--** Work in a database server is bundled into *Transactions*. The transactions follow the **ACID** principle
+   - **! IMPORTANT --** Work in a database server is bundled into *Transactions*. The transactions follow the **ACID** principle
       - *A for Atomicity* --> Entire transaction takes place at once or doesnt happen at all
       - *C for Consistency* --> DB must be consistent before and after the transaction
       - *I for Isolation* --> Multiple transactions occur without interference.
