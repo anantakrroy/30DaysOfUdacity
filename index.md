@@ -165,5 +165,6 @@
       Work in a DB is bundled into atomic transactions to ensure if any part of the transaction fails, the entire transaction can be *rolled back* to ensure consistncy of the DB. Also, every transaction if successful commits work to the DB .
    - *Transactions* capture operations that change a DB's data like updates, deletion, addition etc. They **are not** concerned with the querying aspects like grouping , selecting or ordering . 
    - A transaction can capture one or more pieces of work into a bundle executed in order.
+   - **UDP protocol** --> The hosts on the network send data over the network in units called datagrams without any connection being established.Although,TCP is much more reliant way of sending data, it involves a lot of overhead and is slower. UDP is used when speed is more important than reliability like streaming services or VoIP. UDP does not need to re transmit lost datagrams unlike TCP where if a transaction fails it is re-transmitted back to the server. 
 
 
