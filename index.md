@@ -169,7 +169,7 @@
 
 **3. psql**
    - psql is an interactive terminal application for connecting and interacting with local Postgres server.
-   - Default owner of db is "postgres"
+   - Default owner/username of db is "postgres"
    - In Windows , to get started with psql
       
       ``` psql -U <username>```
@@ -183,7 +183,8 @@
    - `\dt` --> Show all the tables in the current connected db.
    - `\d <tablename>` --> Show the schema of table with name `tablename` with info about *nullable* property.
    - `\q` --> quit psql and return to terminal/command prompt.
-    
+   - *Shortcut to start a connection to db **drivers** with username **postgres** would be ``` psql drivers postgres```*
+
 
 
 
