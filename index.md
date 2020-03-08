@@ -165,6 +165,25 @@
       Work in a DB is bundled into atomic transactions to ensure if any part of the transaction fails, the entire transaction can be *rolled back* to ensure consistncy of the DB. Also, every transaction if successful commits work to the DB .
    - *Transactions* capture operations that change a DB's data like updates, deletion, addition etc. They **are not** concerned with the querying aspects like grouping , selecting or ordering . 
    - A transaction can capture one or more pieces of work into a bundle executed in order.
-   - **UDP protocol** --> The hosts on the network send data over the network in units called datagrams without any connection being established.Although,TCP is much more reliant way of sending data, it involves a lot of overhead and is slower. UDP is used when speed is more important than reliability like streaming services or VoIP. UDP does not need to re transmit lost datagrams unlike TCP where if a transaction fails it is re-transmitted back to the server. 
+   - **UDP protocol** --> The hosts on the network send data over the network in units called datagrams without any connection being established.Although,TCP is much more reliant way of sending data, it involves a lot of overhead and is slower. UDP is used when speed is more important than reliability like streaming services or VoIP. UDP does not need to re transmit lost datagrams unlike TCP where if a transaction fails it is re-transmitted back to the server.
+
+**3. psql**
+   - psql is an interactive terminal application for connecting and interacting with local Postgres server.
+   - Default owner of db is "postgres"
+   - In Windows , to get started with psql
+      
+      ``` psql -U <username>```
+
+      For example:  
+
+      ``` psql -U postgres```
+   - `psql` has several meta commands to interact with the postgres server
+   - `\l` --> Lists all the databases in the server with additional info like owners, access privileges.
+   - `\c <dbname>` --> Connect to a db with name `dbname`
+   - `\dt` --> Show all the tables in the current connected db.
+   - `\d <tablename>` --> Show the schema of table with name `tablename` with info about *nullable* property.
+   - `\q` --> quit psql and return to terminal/command prompt.
+    
+
 
 
