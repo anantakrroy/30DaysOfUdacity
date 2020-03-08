@@ -128,3 +128,42 @@
       - Step 3: *Hash with seq scan on 'drivers' record* - With the seq scan , the join key is checked in the Hash returned from Step 1 to verify if it exists. If it does not , the row is dropped and the next row is scanned. At the end , we are left with the rows which are found in the Hash generated in step 1. 
 
 
+### Day 2 : Client-Server Model, ACID in DBMS and DBAPIs
+
+1. **Client-Server model**
+   - *Server* --> is a centralized program that communicates over a network to *serve* the clients.
+   - *Client* --> is a program that can request data from the server
+   - *Host* --> is a computer connected over the client. Servers and clients run on hosts.
+   - Relational databases follow the client-server model.
+   - *Request and response* --> A client sends a request to the server for data; the job of the server is to process the request and send it back to the client.
+   Request and response occurs over a *communication protocol* which decides the rules for such a communcation between the client and server!
+   - **! IMPORTANT --** A *database client* is any program that sends a request to the database.So, a web server can also serve as a client to a DB if it sends a request to the DB. 
+   - An example using an ecommerce site
+      - User clicks a 'product' on a page.
+      - The click event is registered by the users browser.
+      - The click 'handler function' sends a request to the server.
+      - The server listens to the request, processes the request , sends request to the DB server for data.
+      - The DB processes the request and sends a response to the web server.
+      - The web server receives the data, decides on the view to be rendered and provides the data to be used in the view.
+      - The view template is populated with the data and sent back to the client.
+      - The view is rendered on the client side with the data as well as the representation of the view.
+
+2. **Communication protocols - TCP and UDP**
+   - TCP/IP is one of the communicatio protocols used by client and server to communicate with each other. It is used to communicate between devices and transfer data over the internet.
+   - Communication uses:
+      - IP address --> to locate the particular device on a network
+      - Port --> location on the recepient computer where the data is received.
+      - Port 5432 is used as default for Postgres.
+   - TCP/IP is a **connection based** protocol. All communication between parties is established over a connection. So a connection is established anytime the client and server need to communicate. 
+   - Connecting *starts* and session. Ending the connection *stops* the session.
+   - In a *database session*, many **transactions** can occur over a single session. Transactions are atomic pieces of work for the DB to perform as a whole. The sessions commit work to the database.
+   - **! Important--** Work in a database server is bundled into *Transactions*. The transactions follow the **ACID** principle
+      - *A for Atomicity* --> Entire transaction takes place at once or doesnt happen at all
+      - *C for Consistency* --> DB must be consistent before and after the transaction
+      - *I for Isolation* --> Multiple transactions occur without interference.
+      - *D for durability* --> Changes of a successful transaction occurs even if the system failure occurs. 
+      Work in a DB is bundled into atomic transactions to ensure if any part of the transaction fails, the entire transaction can be *rolled back* to ensure consistncy of the DB. Also, every transaction if successful commits work to the DB .
+   - *Transactions* capture operations that change a DB's data like updates, deletion, addition etc. They **are not** concerned with the querying aspects like grouping , selecting or ordering . 
+   - A transaction can capture one or more pieces of work into a bundle executed in order.
+
+
