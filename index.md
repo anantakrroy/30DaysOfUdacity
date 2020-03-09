@@ -248,6 +248,54 @@
       data = {'id' : 2, 'status' : False, 'number_of_trips' : 4}
       cursor.execute(SQL, data)
       ```
+   - **Example code**
+   
+      ```
+      import psycopg2
 
+      connection = psycopg2.connect('dbname=todoapp user=postgres password=3120358')
+
+      cursor = connection.cursor()
+
+      # drop existing table
+      cursor.execute('DROP TABLE IF EXISTS todo;')
+
+      cursor.execute("""
+         CREATE TABLE todo(
+            id serial PRIMARY KEY,
+            description VARCHAR NOT NULL
+         );
+      """)
+
+      # execute SQL queries using the cursor
+      cursor.execute("INSERT INTO todo(id, description) VALUES (1, 'Buy Milk');")
+
+      # using named variables
+      SQL = 'INSERT INTO todo(id, description) VALUES (%(id)s, %(description)s);'
+      data = {'id' : 2, 'description' : 'Buy bread'}
+      cursor.execute(SQL, data)
+
+      # get the results
+      cursor.execute('SELECT * from todo;')
+      result1 = cursor.fetchone()
+      print(result1) 
+
+      # insert one more after fetching results
+      cursor.execute("INSERT INTO todo(id, description) VALUES (3, 'Buy veggies');")
+      cursor.execute('SELECT * from todo;')
+
+      // Need to execute cursor before fetching again
+      resultAll = cursor.fetchall()
+      print(resultAll)
+
+      // Print the todo items from the db 
+      for record in range(len(resultAll)) :
+         print('Record :', resultAll[record][0] , 'contains', resultAll[record][1])
+
+      connection.commit()
+
+      connection.close()
+      cursor.close()
+   ```
 
 
