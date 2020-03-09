@@ -128,7 +128,7 @@
       - Step 3: *Hash with seq scan on 'drivers' record* - With the seq scan , the join key is checked in the Hash returned from Step 1 to verify if it exists. If it does not , the row is dropped and the next row is scanned. At the end , we are left with the rows which are found in the Hash generated in step 1. 
 
 
-### Day 2 : Client-Server Model, ACID in DBMS and DBAPIs
+### Day 2 : Client-Server Model, ACID in DBMS
 
 1. **Client-Server model**
    - *Server* --> is a centralized program that communicates over a network to *serve* the clients.
@@ -185,6 +185,69 @@
    - `\q` --> quit psql and return to terminal/command prompt.
    - *Shortcut to start a connection to db **drivers** with username **postgres** would be ``` psql drivers postgres```*
 
+### Day 3. DBAPIs
+
+   **Definition**
+   - A DBAPI or Database Adapter provides an interface for a programming language to interact with a relational DB server
+   - It is a *low level library* which allows to directly write SQL statements that connect to a DB
+   - DBAPIs serve different server frameworks i.e language + DB system. eg. -
+      - Ruby ---- pg
+      - Node ---- node-postgres
+      - Python(like Django, Flask) ---- psycopg2
+   - These DBAPIs define standards for using the *result of DB queries* as *inputs to a given language*. eg. -> the result of `SELECT * from mydemodb` DB query which are rows of the DB `mydemodb` can be used as a JS array of objects using a NodeJS adapter like *nodejs-postgres* or as a set of tuples using a Python DB adapter like *psycopg2*.
+
+**psycopg2**
+   - **Basic usage:**  
+      - need to import the installed *psycopg2* package
+
+         ``` import psycopg2```
+      - Setup a connection to an existing database which means we are starting a session and it begins a transaction(recall A of ACID for DBMS)
+      
+         ``` connection = psycopg2.connect("dbname=<yourdbname> user=<username | postgres> password=*******")```
+      - Open a cursor to perform DB operations
+
+         ```cursor = connection.cursor()```
+
+         *what is a cursor????? A database cursor is a control structure that enables traversal over the records in a database. Cursors facilitate subsequent processing in conjunction with the traversal, such as retrieval, addition and removal of database records.*
+      - Execute SQL queries. Eg.--
+
+         ```
+         cursor.execute('''
+               CREATE TABLE todo(
+                  id serial PRIMARY KEY,
+                  description varchar NOT NULL
+               );
+            ''')
+         ```
+         ```
+         cursor.execute("INSERT INTO todo(id, description) VALUES (1, 'buy 2L milk');")
+         ```
+      - Commit the changes to make the db persistent
+
+         ```connection.commit()```
+      - Close the connection with the db
+
+         ```connection.close()```
+
+         ```cursor.close()``` 
+   
+   - **String composition**
+      Can use either eg. %s or named variables to make the code cleaner and more readable
+      eg. 
+      - Using %s
+
+      ```cursor.execute('INSERT INTO trips(id, status, number_of_trips) VALUES (%s, %s, %s);', (1, True, 4))``` 
+      - Using named variables
+      
+      ```cursor.execute('INSERT INTO trips(id, status, number_of_trips) VALUES +  (%(id)s, %(status)s, %(number_of_trips)s);', {'id' : 2, 'status' : False, 'number_of_trips' : 4}```
+
+      OR much better to exploit the power of variables while using named variables
+
+      ```
+      SQL = 'INSERT INTO trips(id, status, number_of_trips) VALUES +  (%(id)s, %(status)s, %(number_of_trips)s);'
+      data = {'id' : 2, 'status' : False, 'number_of_trips' : 4}
+      cursor.execute(SQL, data)
+      ```
 
 
 
