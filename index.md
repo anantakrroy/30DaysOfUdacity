@@ -301,4 +301,11 @@
 
 ### Day 4. ORMs and SQLAlchemy
    - ORM or Object Relational Mapping is one of the ways of adding in a layer of abstraction to a web application when interacting with a DB. DB libraries like *psycopg2* help us to directly interact with a DB but writing SQL queries is prone to mistakes when we are working on the server side in a different framework like python which has its own syntax.
-   - ORM is the 
+   - ORM is the highest level of abstraction while interacting with a DB in a web app. 
+   - ORMs help to use object oriented programming to interact with a DB.
+   - ORMs help to map tables and columns to objects and attributes.
+   - **SQLAlchemy**
+      - Allows SQL queries to be written in form of python functions
+      - Helps generate both SQL and python code --- lesser lines of code
+      - Avoid sending SQL queries to DB everytime(how does this help???)
+      - It would work with any DBMS . On the other hand, each SQL query language has a flavor of its own and would work on only limited number of machines running the particular flavor or SQL. It also gives us the flexibility of switch DB systems without rewriting code. 
