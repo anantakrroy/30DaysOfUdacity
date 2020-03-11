@@ -311,7 +311,7 @@
       - Avoid sending SQL queries to DB everytime(how does this help???)
       - It would work with any DBMS . On the other hand, each SQL query language has a flavor of its own and would work on only limited number of machines running the particular flavor or SQL. It also gives us the flexibility of switch DB systems without rewriting code. 
 
-### Day 5 - SQLAlchemy deep dive
+### Day 5 - SQLAlchemy Basics
    - **Layers of abstraction in SQLAlchemy**
       - DBAPI like psycopg2 --> 
       - The dialect --> *helps to create a layer of abstraction for the flavor of sql used in the db , hence can use different sql flavors for different purposes like dev and production. Also makes it easier to switch db as per requirement*
@@ -361,8 +361,9 @@
 
          class Person(db.Model):
             __tablename__ = 'personinfo' //custom table name of db table
+            <!-- set the columns for the table OR attributes to the python class(recall table columns map to class attributes) -->
             id = db.Column(db.Integer, primary_key=True)
-            name = db.Column(db.String(), nullable=False)
+            name = db.Column(db.String(), nullable=False) //setting datatype, setting constraints
 
             <!-- Customise query outputs in python interactive mode -->
             def __repr__(self):
@@ -393,6 +394,15 @@
       - *localhost* --> the url/host address.Can be localhost or an AWS server address etc.
       - *port* --> connection port used on host, here 5432
       - *name of db* --> name of the DB, here 'persons'
+
+   - Flask-SQLAlchemy provides 1 to 1 mapping to SQLAlchemy data types . Some common data types are -->
+      - integer
+      - string(size) -- in postgresql not specifying the size results in a varchar type of data of variable length
+      - DateTime -- expressed as a python datetime object
+      - float
+      - boolean
+   
+   - *Column constraints* Setting column constraints helps to ensure **data integrity** allowing for DB accuracy and DB consistency. It does not allow data to be inserted ina db if the constraints are not met. Constraints are set in `db.Column()`.eg. `db.checkConstraint('price>0')` ensures no entry with a negative price makes it to a db table.
 
 
    
