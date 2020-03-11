@@ -404,5 +404,20 @@
    
    - *Column constraints* Setting column constraints helps to ensure **data integrity** allowing for DB accuracy and DB consistency. It does not allow data to be inserted ina db if the constraints are not met. Constraints are set in `db.Column()`.eg. `db.checkConstraint('price>0')` ensures no entry with a negative price makes it to a db table.
 
+   - **To create an entry in the db from terminal without starting a psql session**
+      - For adding to the `persons` db above :
+         - Create an instance of a Person object or multiple instances
+            
+            `person1 = Person(name="Ananta")`
+            
+            `person2 = Person(name="Mike")`
+            *Note- no need to specify the id attribute on the above newly created objects since id being a primary key will be auto incremented by SQLAlchemy*
+         - Add the entries as pending changes to the db
 
+            `db.session.add(person1)` *if only one entry added*
+            
+            `db.session.add_all([person1, person2])` *if multiple entries added*
+         - Commit these changes to the db for persistent data
+
+            `db.session.commit()`
    
