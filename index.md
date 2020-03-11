@@ -296,7 +296,8 @@
 
       connection.close()
       cursor.close()
-   ```
+      
+      ```
 
 
 ### Day 4. ORMs and SQLAlchemy
@@ -309,3 +310,89 @@
       - Helps generate both SQL and python code --- lesser lines of code
       - Avoid sending SQL queries to DB everytime(how does this help???)
       - It would work with any DBMS . On the other hand, each SQL query language has a flavor of its own and would work on only limited number of machines running the particular flavor or SQL. It also gives us the flexibility of switch DB systems without rewriting code. 
+
+### Day 5 - SQLAlchemy deep dive
+   - **Layers of abstraction in SQLAlchemy**
+      - DBAPI like psycopg2 --> 
+      - The dialect --> *helps to create a layer of abstraction for the flavor of sql used in the db , hence can use different sql flavors for different purposes like dev and production. Also makes it easier to switch db as per requirement*
+      - Connection pool --> 
+         - *abstracts the opening and closing of DB connections. Do not have to manually open and close connections to a DB.*
+         - *Handles dropped connections to a db eg. network failure*
+         - *reuse db connections*
+         - *avoids making frequent calls to a db which is expensive*
+      - Engine --> 
+         - *lowest level of abstraction to interact with the DB very similar to interacting with DB using a DBAPI*
+         - *One of the three layers which can be chosen to interact with the DB*
+         - *Engine in SQLAlchemy refers to both connection pool and the dialect to interact with the DB*
+         - *A connection pool is created everytime we create an SQLAlchemy engine*
+      - SQL expressions -->
+         - *Next layer of abstraction*
+         - *use SQL expressions using python objects to interact with DB instead of sending raw SQL queries directly to the DB*
+      - SQLAlchemy ORM -->
+         - *Helps map python classes of objects to tables in the DB OR maps the DB schema to applications Python objects*
+         - *Highest layer of abstraction*
+         - *It abstracts the lower layers like the SQL expressions layers and the Engine layer to interact with the DB*
+   
+   - *Mapping between tables and classes* --> * Tables map to classes * Table records map to objects *Table columns map to attributes of the class
+
+   - **Sample Flask app with SQLAlchemy; filename: *hello(dot)py* .**
+      ```
+         <!-- app outputs the "Hello, <person-name> !" on the localhost root route when this app is run-->
+
+         <!-- import flask and flask_sqlalchemy -->
+
+         from flask import Flask
+         from flask_sqlalchemy import SQLAlchemy
+
+         <!-- instantiate the flask app -->
+
+         app = Flask(__name__)
+
+         <!-- configure the flask app to use db at SQLALCHEMY_DATABASE_URI -->
+
+         app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:3120358@localhost:5432/persons'
+         app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False
+
+         <!-- Link an instance of the db using SQLAlchemy with the flask app -->
+
+         db = SQLAlchemy(app)
+
+         <!-- Create a model using db.model -->
+
+         class Person(db.Model):
+            __tablename__ = 'personinfo' //custom table name of db table
+            id = db.Column(db.Integer, primary_key=True)
+            name = db.Column(db.String(), nullable=False)
+
+            <!-- Customise query outputs in python interactive mode -->
+            def __repr__(self):
+               return f'<Person details >>> Person ID : {self.id} , name: {self.name}>'
+
+         <!-- Detects models and creates table in case no such table exists. If another table with the same name (irrespective of schema definition) exists, the table would be dropped from the model -->
+
+         db.create_all()
+
+         <!--using python decorator to route the app when '/' is hit -->
+
+         @app.route('/')
+         def index():
+            person = Person.query.first() // the first query in the table
+            return 'Hello,' + person.name + ' !'
+
+         # Alternative approach
+         <!-- uncomment following lines when using terminal command `python hello.py` -->
+         # if __name__ == '__main__':
+         #     app.run()
+      ```
+   - The configuration is done using the following line
+
+      `app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://          postgres:abcd123@localhost:5432/persons'`
+      - *postgresql* --> dialect or the flavor of sql. Can also specify specific DBAPI to use by appending eg. `+psycopg2` to postgresql for using psycopg2 dbapi
+      - *postgres* --> the username to login to the host machine
+      - *password* --> optional, here abcd123
+      - *localhost* --> the url/host address.Can be localhost or an AWS server address etc.
+      - *port* --> connection port used on host, here 5432
+      - *name of db* --> name of the DB, here 'persons'
+
+
+   
