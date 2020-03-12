@@ -426,13 +426,19 @@
 
 ### Day6 - SQLAlchemy Objects Lifecycle
 </summary>
+<p>
 
 - As we have seen earlier, interactions with a relational DB takes place as *transactions*. Transactions take place within a *session* which begin when a *connection* to the db is started and ends when the connection to the db is closed.
+</p>
+
+<p>
+
 - Within a session, *transactions* are created. Each transaction contains atomic bits of work we want to commit to the db. However, the changes are not immediately committed to the db and an object eg. an SQLAlchemy object passes through various stages before it is persistent to the db. This allows the ability to **undo** changes before committing to a db.
 - **SQLAlchemy Object Lifecycle**
       - **Transient** -- the object exists as soon as it is defined. *eg from previous code*   >>>>   `person1 = Person(name="Jimmy")`
       - **Pending** -- object attached to a session. At this state, `db.session.rollback()` becomes available to undo th changes. *eg* `db.session.add(person1)` At this stage, the object is waiting for a *flush* to happen. Updates and deletions to a db are all at this stage.
       - **Flushing** -- Flush takes pending changes and translates to SQL commands ready to be committed to the db. Referring the layers of abstraction of an ORM based db connection,
          - objects in the ORM are
+</p>
 </details>
    
