@@ -428,14 +428,18 @@
    - Within a session, *transactions* are created. Each transaction contains atomic bits of work we want to commit to the db. However, the changes are not immediately committed to the db and an object eg. an SQLAlchemy object passes through various stages before it is persistent to the db. This allows the ability to **undo** changes before committing to a db.
 
    - **SQLAlchemy Object Lifecycle**
-         - **Transient** -- the object exists as soon as it is defined. *eg from previous code*   >>>>   `person1 = Person(name="Jimmy")`
-         - **Pending** -- object attached to a session. At this state, `db.session.rollback()` becomes available to undo th changes. *eg* `db.session.add(person1)` At this stage, the object is waiting for a *flush* to happen. Updates and deletions to a db are all at this stage.
-         - **Flushing** -- Flush takes pending changes and translates to SQL commands ready to be committed to the db. Referring the layers of abstraction of an ORM based db connection,
-            - objects in the ORM are converted to SQL expressions.
-            - SQL expressions are converted to SQL commands which the Engine can understand
-            - These commands from engine are bundled into connections in the connections abstraction layer(*remember- all sql operations take place in form of transactions which reside within a session which are created when a connection to a db is created*)
-            - These commands are also bundled into specific flavor of the SQL in the dialect layer.
-            - These are handled at the lowest level by the DBAPI
-         - **Committed** -  An object can either be rolled back or be flushed but both these are pending states. To make the data persistent once the object has been flushed , manually committing is still necessary. Committing persists the data and clears the session transactions for a new set of changes.
+      - **Transient** -- the object exists as soon as it is defined. *eg from previous code*   >>>>   `person1 = Person(name="Jimmy")`
+      - **Pending** -- object attached to a session. At this state, `db.session.rollback()` becomes available to undo th changes. *eg* `db.session.add(person1)` At this stage, the object is waiting for a *flush* to happen. Updates and deletions to a db are all at this stage.
+      - **Flushing** -- Flush takes pending changes and translates to SQL commands ready to be committed to the db. Referring the layers of abstraction of an ORM based db connection,
+         - objects in the ORM are converted to SQL expressions.
+         - SQL expressions are converted to SQL commands which the Engine can understand
+         - These commands from engine are bundled into connections in the connections abstraction layer(*remember- all sql operations take place in form of transactions which reside within a session which are created when a connection to a db is created*)
+         - These commands are also bundled into specific flavor of the SQL in the dialect layer.
+         - These are handled at the lowest level by the DBAPI
+      - **Committed** -  An object can either be rolled back or be flushed but both these are pending states. To make the data persistent once the object has been flushed , manually committing is still necessary. Committing persists the data and clears the session transactions for a new set of changes.
+         
+      - **Note** 
+         `db.session.rollback()` is the Transient stage of an object.
+      
 
    
