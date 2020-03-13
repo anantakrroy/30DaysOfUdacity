@@ -439,7 +439,17 @@
       - **Committed** -  An object can either be rolled back or be flushed but both these are pending states. To make the data persistent once the object has been flushed , manually committing is still necessary. Committing persists the data and clears the session transactions for a new set of changes.
          
       - **Note** 
-         `db.session.rollback()` is the Transient stage of an object.
+         - `db.session.rollback()` is the Transient stage of an object.
+         - **Stages** ---- Transient >>>> Pending >>>> Flushed >>>> Committed
+         
+### Day 7 - Flushing in SQLAlchemy and Model.Query
+
+   - Flush takes a pending change and translates it into SQL commands ready to be committed to the DB. On an INSERT sql command, it allows a *future* primary key value to exist. However, this future value has still not persisted to the DB and needs to be manually committed to make it persistent in the DB. 
+   - Flush occurs when we call a **valid** `Query` on the SQLAlchemy object or when `db.session.commit()` is directly called. Flushing makes an in-memory object /table entry available if it is committed to the DB. 
+   - Following image from the lesson with annotations added by me can help to clarify :
+   ![Object lifecycle image](./images/object_lifecycle.png)
+
+   - `db.Model.Query` provides the **Query** object that allows to `SELECT` from the DB to query and return data from the DB. Query allows *method chaining* and hence we can call multiple methods on the Query object getting more query object until it returns a *non query* object in the final function to fetch data. eg. filter(), filter_by(),count(),all().
       
 
    
