@@ -451,7 +451,7 @@
 
    - `db.Model.Query` provides the **Query** object that allows to `SELECT` from the DB to query and return data from the DB. Query allows *method chaining* and hence we can call multiple methods on the Query object getting more query object until it returns a *non query* object in the final function to fetch data. eg. filter(), filter_by(),count(),all().
 
-### Day 8 : Building a CRUD app using Flask, SQLAlchemy and Jinja template library
+### Day 8 : Building a CRUD app using Flask, SQLAlchemy and Jinja template library and MVC architecture
 
    - CRUD stands for Create, Read, Update and Delete. These are equivalent to following operations on a DB and SQLAlchemy ORM respectively
       - *Create* ----> INSERT -----> db.session.add('objectname')
@@ -523,6 +523,15 @@
             'description' : 'Todo item 3'
          }
       ])
-
+   ```
+   - To render a list of items from the DB we need to replace the hard coded list of values in the render template to fetch/read from the ORM model by replacing the `return` statement in the app.py code above with 
+   `return render_template('index.html',data=Todo.query.all())` where `data` now contains all the objects within the Todo model from the db **todos**
+   - **Model View Controller(MVC) pattern**
+      - describes the 3 layers while developing an application
+      - **Models** manage the data and business logic i.e what happens within the DB and the relationships across web app objects.
+      - **View** -  relates to the representation and display logic i.e how the app is visible to the end user
+      - **Controller** - handles the relationship between model and view. It routes the commands to the models and view thus deciding how the model and view interact with each other. A controller can directly update a view or may send a command to the model which changes the data inside a db and in turn causes the view to update.
+      - Example app code above modularises into the MVC architecture as shown below: 
+      ![MVC model](./images/MVC_todo.png) 
 
    
