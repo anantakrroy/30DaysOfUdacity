@@ -450,6 +450,79 @@
    ![Object lifecycle image](./images/object_lifecycle.png)
 
    - `db.Model.Query` provides the **Query** object that allows to `SELECT` from the DB to query and return data from the DB. Query allows *method chaining* and hence we can call multiple methods on the Query object getting more query object until it returns a *non query* object in the final function to fetch data. eg. filter(), filter_by(),count(),all().
-      
+
+### Day 8 : Building a CRUD app using Flask, SQLAlchemy and Jinja template library
+
+   - CRUD stands for Create, Read, Update and Delete. These are equivalent to following operations on a DB and SQLAlchemy ORM respectively
+      - *Create* ----> INSERT -----> db.session.add('objectname')
+      - *Read* -----> SELECT -----> Model.query.all()
+      - *Update* -----> UPDATE -----> eg. vehicle.make = 'Nissan' where vehicle is an object of Class Vehicle and `make` is an attribute of the class.
+      - *Delete* -----> DELETE -----> db.session.delete('objectname')
+   
+   - I am dividing the CRUD app into several parts each building on top of the other which would progressively help us to understand the method of building one.
+
+   - **Sample code 1 - A simple app to render a todo list to the client using hard coded data on the server side flask app**
+
+   *index.html*
+   ```
+   <!DOCTYPE html>
+   <html lang="en">
+
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Todo App</title>
+   </head>
+
+   <body>
+      <ul>
+         <!-- Jinja templating: for loop over the list of 'data' received from the flask server app -->
+         {% for d in data %}
+         <li>{{d. description}}</li>
+         {% endfor %}
+      </ul>
+   </body>
+
+   </html>
+   ```
+   *app.py*
+   ```
+   <!-- require flask, sqlalchemy and render template -->
+   from flask import Flask, render_template
+   from flask_sqlalchemy import SQLAlchemy
+
+   <!-- initialise flask app and setup configuration -->
+   app = Flask(__name__)
+   app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:<password>@localhost:5432/todos'
+   app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+   <!-- Connect the SQLAlchemy ORM with the flask app -->
+   db = SQLAlchemy(app)
+
+   <!-- Define object model -->
+   class Todo(db.Model):
+      id = db.Column(db.Integer, primary_key=True)
+      description = db.Column(db.String(), nullable = False)
+
+      def __repr__(self):
+         return f'{self.id} {self.description}'
+
+   <!-- Create the  tables in the Db from the models if not already existing -->
+   db.create_all()
+
+   <!-- define default route for the app -->
+   @app.route('/')
+   def index():
+      <!-- render a hard coded list of todo items -->
+      return render_template('index.html',data=[
+         {
+            'description' : 'Todo item 1'
+         },{
+            'description' : 'Todo item 2'
+         },{
+            'description' : 'Todo item 3'
+         }
+      ])
+
 
    
