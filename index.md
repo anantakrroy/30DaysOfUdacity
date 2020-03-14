@@ -533,5 +533,18 @@
       - **Controller** - handles the relationship between model and view. It routes the commands to the models and view thus deciding how the model and view interact with each other. A controller can directly update a view or may send a command to the model which changes the data inside a db and in turn causes the view to update.
       - Example app code above modularises into the MVC architecture as shown below: 
       ![MVC model](./images/MVC_todo.png) 
+   - **Getting user input in a Flask application**
+      - Three ways of receiving data from a user in a flask app:
+         - URL query parameters --> `request.args.get(<key>)` where the query is a key:value pair
+         *eg. `color = request.args.get('color')`*
+         - Form inputs --> `request.form.get(<name>)` where the `name` is the attribute of an input field in the `form` element.
+         *eg. `password = request.form.get('password')*
+         - JSON --> Modern way of handling data from the user. The `request.data` retrieves the JSON data as a string. calling `json.loads` on the `request.data` string turns it to a list and dictionary in Python. 
+         eg. 
+         ```
+         data_string = request.data
+         data_dictionary = json.loads(data_string)
+         ```
+
 
    
