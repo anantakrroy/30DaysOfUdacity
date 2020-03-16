@@ -621,5 +621,35 @@
    - `url-for` method allows to generate a URL.
    - `redirect` returns a response object that redirects the client to the given URL.
 
+   - **Sending asynchronous data to the server**
+      - data from client can be sent asynchronously i.e data can be sent to the server and back to the client without a page refresh. Two methods used to implement this are `XMLHttpRequest` and `Fetch`. 
+      - by default, the request sent to the server is synchronous. The request is sent to the server and the server upon completing its assigned task, forces the client to load the resource that the server dictates it to(eg. this was done by the `redirect(url_for(index))` in the above sample code).
+
+         However, in case of an asynchronous request sent using either XHTTPRequest or the fetch method, the client itself decides how to change the view by manipulating the already loaded DOM depending on the response from the server.
+      - *Using XHTTPRequest*
+      ```
+      <!-- xhttprequest object -->
+
+      let xhttp = new XHTTPRequest();
+
+      <!-- get the required data to send to server -->
+
+      data = document.getElementById('todoItem').value;
+
+      <!-- Open an xhttp connection to send data with specified method to the route -->
+
+      xhttp.open('GET','/todos/create?description' + data);
+
+      <!-- send the data to the server on specified route and close the connection -->
+
+      xhttp.send();
+
+      <!-- Event handler to call whenever **readyState** attribute changes -->
+      xhttp.onreadystatechange = () => {
+         if(this.readyState === 4 && this.status === 200) {
+            console.log(xhttp.responseText)
+         }
+      });
+
 
    
