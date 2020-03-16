@@ -547,6 +547,7 @@
          ```
 
 ### Day 10 - CRUD App using Flask
+
    - Client side code to add a todo item
    ```
    <!DOCTYPE html>
@@ -626,7 +627,8 @@
       - by default, the request sent to the server is synchronous. The request is sent to the server and the server upon completing its assigned task, forces the client to load the resource that the server dictates it to(eg. this was done by the `redirect(url_for(index))` in the above sample code).
 
          However, in case of an asynchronous request sent using either XHTTPRequest or the fetch method, the client itself decides how to change the view by manipulating the already loaded DOM depending on the response from the server.
-      - *Using XHTTPRequest*
+
+      - **Using XHTTPRequest**
       ```
       <!-- xhttprequest object -->
 
@@ -650,6 +652,133 @@
             console.log(xhttp.responseText)
          }
       });
+      ```
+
+      - **using fetch**
+      ```
+      fetch('todos/create',{
+         method: 'POST',
+         body: JSON.stringify({
+            'description' : data
+         }),
+         headers: {
+            'Content-Type' : 'application/json'
+         }
+      })
+      ```
+   - **sending AJAX requests using fetch ~ detailed**
+      - Instead of the server dictating which view should be rendered once it finishes handling the data and updating the db , in the following code example, using the *promise based **fetch** api*, the view is updated whenever a new todo item is added without a page refresh.The broad events that take place in this async request are: 
+         - User enters todo item 
+         - clicks create 
+         - the default behavior on form submit is disabled. Instead, fetch is called by passing in the desired url on server to which the request(here POST) is made. 
+         - The *request type* is POST, with the body sent as a string using `json.stringify` (since data sent to web server is of type string) and alongwith it the *header* to indicate the request type data is of json type.
+         - The server handles the incoming request. Extracts the desired data from the incoming request using `request.get_json` to parse it as JSON.
+         - DB connection is opened and changes committed.
+         - Send the data back to the browser as a JSON object using `jsonify()`
+         - Client handles the received data in the `then`methods of the fetch method. Since `fetch` is **promise based**, hence the `then` executes ONLY when a response is received. In the `catch` method, errors are handled.
 
 
-   
+   *index.html*
+   ```
+   <!DOCTYPE html>
+   <html lang="en">
+
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Todo App</title>
+      <style>
+         .hidden {
+               color: red;
+               font-weight: 700;
+               display: none
+         }
+      </style>
+   </head>
+
+   <body>
+      <form>
+         <div>
+               <label for="description">Add Todo item</label>
+               <input type="text" name="todoItem" id="description">
+         </div>
+         <div>
+               <input type="submit" id="submit" value="Create">
+         </div>
+      </form>
+      <div id="errorText" class="hidden">Something went wrong!</div>
+      <ul>
+         <!-- Jinja templating: for loop -->
+         {% for d in data %}
+         <li>{{d. description}}</li>
+         {% endfor %}
+      </ul>
+
+      <!-- Prevent default form behavior -->
+      <script>
+         document.querySelector('form').onsubmit = (e) => {
+               e.preventDefault();
+               fetch('/todos/create', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                     'description': document.getElementById('description').value
+                  }),
+                  headers: {
+                     'Content-Type': 'application/json'
+                  }
+               })
+                  .then(response => response.json())
+                  .then(data => {
+                     console.log('Data >>', data)
+                     const liItem = document.createElement('li')
+                     liItem.innerHTML = data['description']
+                     document.querySelector('ul').appendChild(liItem)
+                     document.getElementById('errorText').className = 'hidden'
+                  })
+                  .catch((err) => {
+                     console.log("Error >>> ", err)
+                     document.getElementById('errorText').className = ''
+                  })
+         }
+      </script>
+   </body>
+
+   </html>
+   ```
+
+   *app.py*
+   ```
+   from flask import Flask, render_template, request,redirect, url_for, jsonify
+   from flask_sqlalchemy import SQLAlchemy
+
+   app = Flask(__name__)
+   app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:3120358@localhost:5432/todos'
+   app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+   db = SQLAlchemy(app)
+
+   class Todo(db.Model):
+      id = db.Column(db.Integer, primary_key=True)
+      description = db.Column(db.String(), nullable = False)
+
+      def __repr__(self):
+         return f'{self.id} {self.description}'
+
+   db.create_all()
+
+   @app.route('/')
+   def index():
+      todoList = Todo.query.all()
+      print(todoList)
+      return render_template('index.html', data=Todo.query.all())
+
+   # Listen to 'create' route
+   @app.route('/todos/create', methods=['POST'])
+   def create():
+      todoItem = request.get_json()['description']
+      itemToAdd = Todo(description=todoItem)
+      db.session.add(itemToAdd)
+      db.session.commit()
+      return jsonify({
+         'description': itemToAdd.description
+      })
+   ```
