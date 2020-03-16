@@ -677,108 +677,107 @@
          - Send the data back to the browser as a JSON object using `jsonify()`
          - Client handles the received data in the `then`methods of the fetch method. Since `fetch` is **promise based**, hence the `then` executes ONLY when a response is received. In the `catch` method, errors are handled.
 
+      *index.html*
+      ```
+      <!DOCTYPE html>
+      <html lang="en">
 
-   *index.html*
-   ```
-   <!DOCTYPE html>
-   <html lang="en">
+      <head>
+         <meta charset="UTF-8">
+         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <title>Todo App</title>
+         <style>
+            .hidden {
+                  color: red;
+                  font-weight: 700;
+                  display: none
+            }
+         </style>
+      </head>
 
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Todo App</title>
-      <style>
-         .hidden {
-               color: red;
-               font-weight: 700;
-               display: none
-         }
-      </style>
-   </head>
+      <body>
+         <form>
+            <div>
+                  <label for="description">Add Todo item</label>
+                  <input type="text" name="todoItem" id="description">
+            </div>
+            <div>
+                  <input type="submit" id="submit" value="Create">
+            </div>
+         </form>
+         <div id="errorText" class="hidden">Something went wrong!</div>
+         <ul>
+            <!-- Jinja templating: for loop -->
+            {% for d in data %}
+            <li>{{d. description}}</li>
+            {% endfor %}
+         </ul>
 
-   <body>
-      <form>
-         <div>
-               <label for="description">Add Todo item</label>
-               <input type="text" name="todoItem" id="description">
-         </div>
-         <div>
-               <input type="submit" id="submit" value="Create">
-         </div>
-      </form>
-      <div id="errorText" class="hidden">Something went wrong!</div>
-      <ul>
-         <!-- Jinja templating: for loop -->
-         {% for d in data %}
-         <li>{{d. description}}</li>
-         {% endfor %}
-      </ul>
-
-      <!-- Prevent default form behavior -->
-      <script>
-         document.querySelector('form').onsubmit = (e) => {
-               e.preventDefault();
-               fetch('/todos/create', {
-                  method: 'POST',
-                  body: JSON.stringify({
-                     'description': document.getElementById('description').value
-                  }),
-                  headers: {
-                     'Content-Type': 'application/json'
-                  }
-               })
-                  .then(response => response.json())
-                  .then(data => {
-                     console.log('Data >>', data)
-                     const liItem = document.createElement('li')
-                     liItem.innerHTML = data['description']
-                     document.querySelector('ul').appendChild(liItem)
-                     document.getElementById('errorText').className = 'hidden'
+         <!-- Prevent default form behavior -->
+         <script>
+            document.querySelector('form').onsubmit = (e) => {
+                  e.preventDefault();
+                  fetch('/todos/create', {
+                     method: 'POST',
+                     body: JSON.stringify({
+                        'description': document.getElementById('description').value
+                     }),
+                     headers: {
+                        'Content-Type': 'application/json'
+                     }
                   })
-                  .catch((err) => {
-                     console.log("Error >>> ", err)
-                     document.getElementById('errorText').className = ''
-                  })
-         }
-      </script>
-   </body>
+                     .then(response => response.json())
+                     .then(data => {
+                        console.log('Data >>', data)
+                        const liItem = document.createElement('li')
+                        liItem.innerHTML = data['description']
+                        document.querySelector('ul').appendChild(liItem)
+                        document.getElementById('errorText').className = 'hidden'
+                     })
+                     .catch((err) => {
+                        console.log("Error >>> ", err)
+                        document.getElementById('errorText').className = ''
+                     })
+            }
+         </script>
+      </body>
 
-   </html>
-   ```
+      </html>
+      ```
 
-   *app.py*
-   ```
-   from flask import Flask, render_template, request,redirect, url_for, jsonify
-   from flask_sqlalchemy import SQLAlchemy
+      *app.py*
+      ```
+      from flask import Flask, render_template, request,redirect, url_for, jsonify
+      from flask_sqlalchemy import SQLAlchemy
 
-   app = Flask(__name__)
-   app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:3120358@localhost:5432/todos'
-   app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-   db = SQLAlchemy(app)
+      app = Flask(__name__)
+      app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:3120358@localhost:5432/todos'
+      app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+      db = SQLAlchemy(app)
 
-   class Todo(db.Model):
-      id = db.Column(db.Integer, primary_key=True)
-      description = db.Column(db.String(), nullable = False)
+      class Todo(db.Model):
+         id = db.Column(db.Integer, primary_key=True)
+         description = db.Column(db.String(), nullable = False)
 
-      def __repr__(self):
-         return f'{self.id} {self.description}'
+         def __repr__(self):
+            return f'{self.id} {self.description}'
 
-   db.create_all()
+      db.create_all()
 
-   @app.route('/')
-   def index():
-      todoList = Todo.query.all()
-      print(todoList)
-      return render_template('index.html', data=Todo.query.all())
+      @app.route('/')
+      def index():
+         todoList = Todo.query.all()
+         print(todoList)
+         return render_template('index.html', data=Todo.query.all())
 
-   # Listen to 'create' route
-   @app.route('/todos/create', methods=['POST'])
-   def create():
-      todoItem = request.get_json()['description']
-      itemToAdd = Todo(description=todoItem)
-      db.session.add(itemToAdd)
-      db.session.commit()
-      return jsonify({
-         'description': itemToAdd.description
-      })
-   ```
+      # Listen to 'create' route
+      @app.route('/todos/create', methods=['POST'])
+      def create():
+         todoItem = request.get_json()['description']
+         itemToAdd = Todo(description=todoItem)
+         db.session.add(itemToAdd)
+         db.session.commit()
+         return jsonify({
+            'description': itemToAdd.description
+         })
+      ```
