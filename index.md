@@ -612,6 +612,7 @@
       db.session.commit()
       return redirect(url_for('index'))
    ```
+   - **MVC flow in the above app** --> User enters info in form and clicks Create >>>> The view sends a POST request on the specified route >>>> The flask server then handles the incoming POST request and works on the DB model >>>> Upon making changes to the DB, it notifies the view of the changes and a new view is re rendered.
    - Forms can send data to a server by using `method` attribute by assigning either a `GET`value or `POST` value.Both GET and POST correspond to the HTTP methods.
       - **GET** ---> Sends a GET request to the server *through URL parameters* by appending the form data to url. Can handle such data on the flask server using `request.args['name']` or `request.args.get('name')`. Ideal for smaller submissions.
       - **POST** ---> Sends POST request to the server *through request body*. Can handle data sent by POST using `request.form.get('name')`. Request body *stringifies* the key-value pairs of form data received from the name attribute within the form inputs. 
