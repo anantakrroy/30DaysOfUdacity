@@ -581,7 +581,7 @@
    </html>
    ```
    - Server side code adding in the extra `create/todos/` route
-   
+
    ```
    from flask import Flask, render_template, request,redirect, url_for
    from flask_sqlalchemy import SQLAlchemy
@@ -633,6 +633,7 @@
          However, in case of an asynchronous request sent using either XHTTPRequest or the fetch method, the client itself decides how to change the view by manipulating the already loaded DOM depending on the response from the server.
 
       - **Using XHTTPRequest**
+      
       ```
       <!-- xhttprequest object -->
 
