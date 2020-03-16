@@ -546,5 +546,79 @@
          data_dictionary = json.loads(data_string)
          ```
 
+### Day 10 - CRUD App using Flask
+   - Client side code to add a todo item
+   ```
+   <!DOCTYPE html>
+   <html lang="en">
+
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Todo App</title>
+   </head>
+
+   <body>
+      <form action="/todos/create" method="POST">
+         <div>
+               <label for="description">Add Todo item</label>
+               <input type="text" name="todoItem" id="description">
+         </div>
+         <div>
+               <input type="submit" id="submit" value="Create">
+         </div>
+      </form>
+      <ul>
+         <!-- Jinja templating: for loop -->
+         {% for d in data %}
+         <li>{{d. description}}</li>
+         {% endfor %}
+      </ul>
+   </body>
+
+   </html>
+   ```
+   - Server side code adding in the extra `create/todos/` route
+   ```
+   from flask import Flask, render_template, request,redirect, url_for
+   from flask_sqlalchemy import SQLAlchemy
+
+   app = Flask(__name__)
+   app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:3120358@localhost:5432/todos'
+   app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+   db = SQLAlchemy(app)
+
+   class Todo(db.Model):
+      id = db.Column(db.Integer, primary_key=True)
+      description = db.Column(db.String(), nullable = False)
+
+      def __repr__(self):
+         return f'{self.id} {self.description}'
+
+   db.create_all()
+
+   @app.route('/')
+   def index():
+      todoList = Todo.query.all()
+      print(todoList)
+      return render_template('index.html', data=Todo.query.all())
+
+   # Listen to 'create' route
+   @app.route('/todos/create', methods=['POST'])
+   def create():
+      todoItem = request.form.get('todoItem')
+      itemToAdd = Todo(description=todoItem)
+      db.session.add(itemToAdd)
+      db.session.commit()
+      return redirect(url_for('index'))
+   ```
+   - Forms can send data to a server by using `method` attribute by assigning either a `GET`value or `POST` value.Both GET and POST correspond to the HTTP methods.
+      - **GET** ---> Sends a GET request to the server *through URL parameters* by appending the form data to url. Can handle such data on the flask server using `request.args['name']` or `request.args.get('name')`. Ideal for smaller submissions.
+      - **POST** ---> Sends POST request to the server *through request body*. Can handle data sent by POST using `request.form.get('name')`. Request body *stringifies* the key-value pairs of form data received from the name attribute within the form inputs. 
+
+   - `request` class is imported to handle the URL parameters. 
+   - `url-for` method allows to generate a URL.
+   - `redirect` returns a response object that redirects the client to the given URL.
+
 
    
