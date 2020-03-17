@@ -817,3 +817,19 @@
 
    - The above code sample handles an error while committing to the db. Also uses a variable to store the data to be returned back to the client instead of trying to access the db object which is no longer available after committing to db since `db.session.commit` commits to the db and closes the connection. If we try to access an object from this instance after a commit is done, we cannot get that instance and a `DetachedInstanceError` is thrown.
 
+   - **Migrations - changes in data schema**
+      - Data migrations relate to how data schema is changed over time over an already existing db schema.
+      - Db migration is challenging because any wrong changes to a db can break the app. One of the important features of a db is the ability to *rollback* the changes if any mistakes are made while making changes to the db. *Test* before making changes to the db
+      - **Schema Migration** --> File that keeps track of changes to the db schema(i.e the structure of the db). It provides a *version history* of the db schema. Migrations allow to upgrade the db schema by *applying migrations* while they also allow rollback of db schema to a previous version.
+      - **Migration key points:**
+         - uniquely named.
+         - contains changes made to the db schema over time.
+         - normally stored in a local *migrations/ folder*
+         - has *1 to 1 mapping* with the *changes* made to db and the *migration files* in the migrations/ folder.
+         - migration files setup the tables in the db 
+         - All changes made to the db schema must be present in the migrations folder.
+      - To setup migrations(migration library for SQLAlchemy based migrations is *flask-migrate*) from the terminal/command line, a migration script is run(*flask-script* for flask apps). Migration scripts provide three basic features-
+         - **migrate** --> create a migration script template ; generate a migration file based on changes to be made.
+         - **upgrade** --> applying migrations that haven't yet been applied i.e *upgrading db*
+         - **downgrade** --> rolling back migrations i.e *downgrading db*
+
