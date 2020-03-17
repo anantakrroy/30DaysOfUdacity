@@ -678,8 +678,8 @@
          - the default behavior on form submit is disabled. Instead, fetch is called by passing in the desired url on server to which the request(here POST) is made. 
          - The *request type* is POST, with the body sent as a string using `json.stringify` (since data sent to web server is of type string) and alongwith it the *header* to indicate the request type data is of json type.
          - The server handles the incoming request. Extracts the desired data from the incoming request which is of type String using `request.get_json` to parse it as JSON.
-         - DB connection is opened and changes committed.
-         - Send the data back to the browser as a JSON object using `jsonify()`
+         - DB connection is opened, changes added to db and changes committed.
+         - Send the data back to the browser by turning the *JSON output into a Response object of type application/json* using `jsonify()`
          - Client handles the received data in the `then`methods of the fetch method. Since `fetch` is **promise based**, hence the `then` executes ONLY when a response is received. In the `catch` method, errors are handled.
 
       *index.html*
