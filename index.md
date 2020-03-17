@@ -786,3 +786,34 @@
             'description': itemToAdd.description
          })
       ```
+
+### Day 11 - CRUD App using Flask
+   - **Using db session in controllers : Why use them?** To handle errors in case a db operation did not commit successfully or just partially, we can use the `db.session.rollback()` to undo any pending changes to the db. This can be done using the inbuilt exception handling capability of Python - `try except finally` block. 
+   - *Sample server side code*
+
+   ```
+   @app.route('/todos/create', methods=['POST'])
+   def create():
+    todoItem = request.get_json()['description']
+    body = {}
+    error = False
+    try:
+        itemToAdd = Todo(description=todoItem)
+        db.session.add(itemToAdd)
+        db.session.commit()
+        body['description'] = itemToAdd.description
+    except:
+        error = True
+        db.session.rollback()
+        print(sys.exc_info())
+    finally:
+        db.session.close()
+    if not error:
+        print('Sending data >>>' , body)
+        return jsonify(body)
+    else :
+        abort(400)
+   ```
+
+   - The above code sample handles an error while committing to the db. Also uses a variable to store the data to be returned back to the client instead of trying to access the db object which is no longer available after committing to db since `db.session.commit` commits to the db and closes the connection. If we try to access an object from this instance after a commit is done, we cannot get that instance and a `DetachedInstanceError` is thrown.
+
