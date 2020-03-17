@@ -819,7 +819,8 @@
 
    - **Migrations - changes in data schema**
       - Data migrations relate to how data schema is changed over time over an already existing db schema.
-      - Db migration is challenging because any wrong changes to a db can break the app. One of the important features of a db is the ability to *rollback* the changes if any mistakes are made while making changes to the db. *Test* before making changes to the db
+      - Db migration is challenging because any wrong changes to a db can break the app. One of the important features of a db is the ability to *rollback* the changes if any mistakes are made while making changes to the db. *Test* before making changes to the db.
+      - **Why migrate dbs?** If we want to make changes to ourdb schema eg. add a new column *completed* to our todo app, we need to add in `completed = db.Column(...)`, followed by `db.create_all()` command. Then we need to `drop` the old db and `createdb` to create the entire db once again when the app is run. This is not only an expensive process to just add once column but also leads to loss of previously stored data. Hence, migrations in db is the way forward.
       - **Schema Migration** --> File that keeps track of changes to the db schema(i.e the structure of the db). It provides a *version history* of the db schema. Migrations allow to upgrade the db schema by *applying migrations* while they also allow rollback of db schema to a previous version.
       - **Migration key points:**
          - uniquely named.
