@@ -832,4 +832,9 @@
          - **migrate** --> create a migration script template ; generate a migration file based on changes to be made.
          - **upgrade** --> applying migrations that haven't yet been applied i.e *upgrading db*
          - **downgrade** --> rolling back migrations i.e *downgrading db*
+      - *flask_migrate* is a migration manager for SQLAlchemy DBs based on the Alembic library. The *Alembic* is a lightweight db migration tool used for SQLAlchemy based DBs. flask-migrate sets up the configuration for Alembic to work properly with Flask and flask SQLAlchemy apps.
+      - Steps to include migrations in project --->
+         - initialise the migration repo for storing migrations.
+         - create a migration script using `flask_migrate`
+         - run the migration script manually using `flask_script`
 
