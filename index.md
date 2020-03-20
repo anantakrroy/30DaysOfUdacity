@@ -839,3 +839,246 @@
          - create a migration script using `flask_migrate`
          - run the migration script manually using `flask_script`
 
+### Day 12-14 Complete CRUD application using Flask and SQLAlchemy
+
+*app.py*
+
+```
+from flask import Flask, render_template, request,redirect, url_for, jsonify, abort
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+import sys
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:3120358@localhost:5432/todos'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+migrate = Migrate(app,db)
+
+class Todo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(), nullable = False)
+    completed = db.Column(db.Boolean, nullable = False, default = False)
+
+    def __repr__(self):
+        return f'{self.id} {self.description}'
+
+# db.create_all()
+
+@app.route('/', methods=['GET','DELETE','POST'])
+def index():
+    todoList = Todo.query.all()
+    print(todoList)
+    return render_template('index.html', data=Todo.query.order_by('id').all())
+
+# Listen to 'create' route
+@app.route('/todos/create', methods=['POST'])
+def create():
+    todoItem = request.get_json()['description']
+    body = {}
+    error = False
+    try:
+        itemToAdd = Todo(description=todoItem)
+        db.session.add(itemToAdd)
+        db.session.commit()
+        body['id'] = itemToAdd.id
+        body['description'] = itemToAdd.description
+    except:
+        error = True
+        db.session.rollback()
+        print(sys.exc_info())
+    finally:
+        db.session.close()
+    if not error:
+        print('Sending data >>>' , body)
+        return jsonify(body)
+    else :
+        abort(400)
+
+# Listen to 'completed' route
+@app.route('/todos/<todoId>/completed', methods=['POST'])
+def setCompleted(todoId):
+    try:
+        completed = request.get_json()['completed']
+        todo = Todo.query.get(todoId)
+        todo.completed = completed
+        db.session.commit()
+    except:
+        db.session.rollback()
+    finally:
+        db.session.close()
+    return redirect(url_for('index'))
+
+# Listen to 'delete' route
+@app.route('/todos/<todoId>/delete',methods = ['DELETE'])
+def deleteTodo(todoId):
+    try:
+        print(todoId)
+        Todo.query.filter_by(id=todoId).delete()
+        db.session.commit()
+        print('Deleted item with id from todo', todoId)
+    except Exception as e:
+        db.session.rollback()
+        print('Error while deleting!!!!', e)
+    finally:
+        db.session.close()
+    return jsonify({'success' : True})
+```
+
+*index.html*
+
+```
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+    <style>
+        .hidden {
+            color: red;
+            font-weight: 700;
+            display: none
+        }
+
+        ul {
+            list-style-type: none;
+            margin-top: 20px;
+            padding: 0;
+        }
+
+        li {
+            display: grid;
+            grid-template-columns: 25px 30% 30px;
+            grid-template-rows: 1fr;
+            padding: 5px;
+        }
+
+        button {
+            color: rgb(146, 13, 13);
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <form>
+        <div>
+            <label for="description">Add Todo item</label>
+            <input type="text" name="todoItem" id="description">
+        </div>
+        <div>
+            <input type="submit" id="submit" value="Create">
+        </div>
+    </form>
+    <div id="errorText" class="hidden">Something went wrong!</div>
+    <ul>
+        <!-- Jinja templating: for loop -->
+        {% for d in data %}
+        <li>
+            <input class="checkStatus" data-id="{{d.id}}" type="checkbox" {% if d.completed %} checked
+                {% endif %}>{{d. description}}
+            <button class="delete" data-id="{{d.id}}" type="button">&cross;</button>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Prevent default form behavior -->
+    <script>
+        // create new todo DOM elements
+        document.querySelector('form').onsubmit = (e) => {
+            e.preventDefault();
+            fetch('/todos/create', {
+                method: 'POST',
+                body: JSON.stringify({
+                    'description': document.getElementById('description').value
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Data >>', data)
+                    const liItem = document.createElement('li')
+                    const checkLi = document.createElement('input')
+                    const delBtn = document.createElement('button')
+                    // set button attributes
+                    delBtn.className = 'delete'
+                    delBtn.type = 'button'
+                    delBtn.setAttribute('data-id', data.id)
+                    delBtn.innerHTML = '&cross;'
+                    // set list item attibutes
+                    checkLi.className = 'checkStatus'
+                    checkLi.setAttribute('data-id', data.id)
+                    checkLi.type = 'checkbox'
+                    const liText = document.createTextNode(data['description'])
+                    // Below line does not work; have to create a text node to get the input to be inside the li item
+                    // liItem.innerHTML = data['description']
+                    liItem.appendChild(checkLi)
+                    liItem.appendChild(liText)
+                    liItem.appendChild(delBtn)
+                    document.querySelector('ul').appendChild(liItem)
+                    document.getElementById('errorText').className = 'hidden'
+                })
+                .catch((err) => {
+                    console.log("Error >>> ", err)
+                    document.getElementById('errorText').className = ''
+                })
+        }
+
+        // handle checked items
+        let checkBoxes = document.querySelectorAll('.checkStatus')
+        for (let i = 0; i < checkBoxes.length; i++) {
+            checkBoxes[i].onchange = (e) => {
+                console.log('Event >>> ', e)
+                const isChecked = e.target.checked
+                const todoId = e.target.dataset['id']
+                console.log(todoId)
+                fetch('/todos/' + todoId + '/completed', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        'completed': isChecked
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(() => document.getElementById('errorText').className = 'hidden')
+                    .catch((err) => {
+                        console.log("Error >>> ", err)
+                        document.getElementById('errorText').className = ''
+                    })
+            }
+        }
+
+        // handle delete
+        let buttonsList = document.querySelectorAll('.delete')
+        for (let i = 0; i < buttonsList.length; i++) {
+            buttonsList[i].addEventListener('click', (e) => {
+                const buttonId = e.target.dataset['id']
+                console.log('Event >>> ', e)
+                fetch('/todos/' + buttonId + '/delete', {
+                    method: 'DELETE',
+                })
+                    .then(() => {
+                        document.getElementById('errorText').className = 'hidden'
+                        console.log('Got response from server')
+                        const itemToDelete = e.target.parentElement
+                        itemToDelete.remove()
+                        })
+                    .catch((err) => {
+                        console.log("Error >>> ", err)
+                        document.getElementById('errorText').className = ''
+                    })
+            }
+            )
+        }
+
+    </script>
+</body>
+
+</html>
+```
