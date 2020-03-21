@@ -838,6 +838,11 @@
          - initialise the migration repo for storing migrations.
          - create a migration script using `flask_migrate`
          - run the migration script manually using `flask_script`
+   - Steps to implement migrations in flask app : 
+      - Bootstrap migration : link to the flask app and db. 
+      - Run `flask db init` to create a migration repository. *There is no need for `db.create_all()` anymore*
+      - Migration allows us to keep track of the changes to db schema. We can make changes to our db models, allow flask migrate to incorporate those changes, fine tune the migration scripts and finally run `db.upgrade` to implement those changes. 
+
 
 ### Day 12-14 Complete CRUD application using Flask and SQLAlchemy
 
@@ -854,6 +859,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:3120358@localhost
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+# Bootstrap db migrate commands: 
+# Connect migrate to the app and db
 migrate = Migrate(app,db)
 
 class Todo(db.Model):
@@ -1082,3 +1090,7 @@ def deleteTodo(todoId):
 
 </html>
 ```
+
+### Day 15 - Modeling relationships in a multi model app
+   - SQLAlchemy configures the relationship between multiple models in the app *once* and generates *JOIN* statements everytime it is required by the user.
+   - `db.relationship` ---> SQLAlchemy provides and configures the relationship between models using this command. It is defined
