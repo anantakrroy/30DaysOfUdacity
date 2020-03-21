@@ -841,7 +841,7 @@
    - Steps to implement migrations in flask app : 
       - Bootstrap migration : link to the flask app and db. 
       - Run `flask db init` to create a migration repository. *There is no need for `db.create_all()` anymore*
-      - Migration allows us to keep track of the changes to db schema. We can make changes to our db models, allow flask migrate to incorporate those changes, fine tune the migration scripts and finally run `db.upgrade` to implement those changes. 
+      - Migration allows us to keep track of the changes to db schema. We can make changes to our db models, allow flask migrate to incorporate those changes, *fine tune the migration scripts* and finally run `db.upgrade` to implement those changes. 
 
 
 ### Day 12-14 Complete CRUD application using Flask and SQLAlchemy
