@@ -1094,3 +1094,18 @@ def deleteTodo(todoId):
 ### Day 15 - Modeling relationships in a multi model app
    - SQLAlchemy configures the relationship between multiple models in the app *once* and generates *JOIN* statements everytime it is required by the user.
    - `db.relationship` ---> SQLAlchemy provides and configures the relationship between models using this command. It is defined
+   - `db.relationship` is defined on the **parent model**. it sets the name of the children and the name of the parent on a child using the `backref` attribute. eg. 
+   
+   ```
+   <!-- SomeChild is name of the child class  &  some_parent 
+   is the custom property name for the parent object -->
+   class SomeParent(db.Model):
+      id = db.Column(db.Integer, primary_key=True)
+      country = db.Country(db.String(),nullable=False)
+      children = db.relationship('SomeChild', backref='some_parent')
+   ```
+   
+   - `db.relationship`([Relationship API](https://docs.sqlalchemy.org/en/13/orm/relationship_api.html)) also configures when the joined assets between child and parent should be loaded. This is **important** because **joins are expensive** and singnificantly impact the user experience(UX). 
+   - *Lazy vs Eager loading of joined assets*
+      - **Lazy** --> load needed joined data only as needed. Advantage is there is no initial wait time and the joined asset is loaded only when needed .Disadvantage is that it is loaded everytime there is a request for the joined asset. This is the default value for loading in SQLAlchemy. Set using `lazy=True` or `lazy=select`
+      - **Eager** --> load all the joined assets in one go. Hence, reduces the future queries made to the DB. Subsequent SQL calls read the existing data. However, this comes at the cost of a long initial load time. Set using `lazy='joined'`
