@@ -1109,3 +1109,12 @@ def deleteTodo(todoId):
    - *Lazy vs Eager loading of joined assets*
       - **Lazy** --> load needed joined data only as needed. Advantage is there is no initial wait time and the joined asset is loaded only when needed .Disadvantage is that it is loaded everytime there is a request for the joined asset. This is the default value for loading in SQLAlchemy. Set using `lazy=True` or `lazy=select`
       - **Eager** --> load all the joined assets in one go. Hence, reduces the future queries made to the DB. Subsequent SQL calls read the existing data. However, this comes at the cost of a long initial load time. Set using `lazy='joined'`
+
+### Day 16
+   - *Configure foreign keys* --> 
+      -`db.relationship` **does not set foreign keys**. A column needs to be added (primary key from the parent table) on the child table which has the foreign key constraint. 
+      - The **db.relationship** is set on the **parent model** while **foreign keys** are set on the **child** model.
+      - The foreign key is bound by **referential integrity** i.e its data type must match that on the parent table and a foreign key column always matches
+      - Implemented using the `db.ForeignKey` option in `db.Column` to specify a foreign key constraint that maps to the primary key on foreign table.
+      - `db.ForeignKey(some_parent.id)` where `some_parent` is the name of parent table, `id` is parent table primary key. 
+
