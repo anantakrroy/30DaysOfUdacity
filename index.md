@@ -1118,3 +1118,411 @@ def deleteTodo(todoId):
       - Implemented using the `db.ForeignKey` option in `db.Column` to specify a foreign key constraint that maps to the primary key on foreign table.
       - `db.ForeignKey(some_parent.id)` where `some_parent` is the name of parent table, `id` is parent table primary key. 
 
+### Day 17 - Todo App - adding lists and items therein
+
+   - app.py
+
+   ```
+      from flask import Flask, render_template, request,redirect, url_for, jsonify, abort
+   from flask_sqlalchemy import SQLAlchemy
+   from flask_migrate import Migrate
+   import sys
+
+   app = Flask(__name__)
+   app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:3120358@localhost:5432/todos'
+   app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+   db = SQLAlchemy(app)
+   migrate = Migrate(app,db)
+
+   class Todo(db.Model):
+      __tablename__ = 'todo'
+      id = db.Column(db.Integer, primary_key=True)
+      description = db.Column(db.String(), nullable = False)
+      completed = db.Column(db.Boolean, nullable = False, default=False)
+      list_id = db.Column(db.Integer, db.ForeignKey("todoLists.id"), nullable=False)
+
+      def __repr__(self):
+         return f'{self.id} {self.description}'
+
+   class TodoList(db.Model):
+      __tablename__ = "todoLists"
+      id = db.Column(db.Integer, primary_key=True)
+      name = db.Column(db.String(), nullable=False)
+      todo = db.relationship('Todo', backref='list', lazy=True)
+
+   # db.create_all()
+   # home route
+   @app.route('/', methods=['GET','DELETE','POST'])
+   def index():
+      return redirect(url_for('get_list_todo',list_id=1))
+
+   # list route
+   @app.route('/lists/<list_id>')
+   def get_list_todo(list_id):
+      todoList = Todo.query.all()
+      print(todoList)
+      return render_template('index.html',lists = TodoList.query.all(), todos = Todo.query.filter_by(list_id=list_id).order_by(Todo.id).all(), active_list = TodoList.query.get(list_id))
+
+   # Listen to 'create todos' route
+   @app.route('/todos/create', methods=['POST'])
+   def create():
+      todoItem = request.get_json()['description']
+      itemCategory = request.get_json()['category']
+      body = {}
+      error = False
+      try:
+         itemToAdd = Todo(description=todoItem, list_id=itemCategory)
+         db.session.add(itemToAdd)
+         db.session.commit()
+         body['id'] = itemToAdd.id
+         body['description'] = itemToAdd.description
+         body['category'] = itemToAdd.list_id
+      except:
+         error = True
+         db.session.rollback()
+         print(sys.exc_info())
+      finally:
+         db.session.close()
+      if not error:
+         print('Sending data >>>' , body)
+         return jsonify(body)
+      else :
+         abort(400)
+
+   # Listen to 'create list' route
+   @app.route('/lists/create', methods=['POST'])
+   def createList():
+      listName = request.get_json()['listName']
+      error = False
+      body = {}
+      try:
+         listToAdd = TodoList(name=listName)
+         db.session.add(listToAdd)
+         db.session.commit()
+         body['id'] = listToAdd.id
+         body['listName'] = listToAdd.name
+      except :
+         error = True
+         db.session.rollback()
+         print(sys.exc_info())
+      finally:
+         db.session.close()
+      if not error:
+         print('Sending new list to client!')
+         return jsonify(body)
+      else:
+         abort(400)
+
+   # Listen to 'completed' route
+   @app.route('/todos/<todoId>/completed', methods=['POST'])
+   def setCompleted(todoId):
+      try:
+         completed = request.get_json()['completed']
+         todo = Todo.query.get(todoId)
+         todo.completed = completed
+         db.session.commit()
+      except:
+         db.session.rollback()
+      finally:
+         db.session.close()
+      return redirect(url_for('index'))
+
+   # Listen to 'delete' route
+   @app.route('/todos/<todoId>/delete',methods = ['DELETE'])
+   def deleteTodo(todoId):
+      try:
+         print(todoId)
+         Todo.query.filter_by(id=todoId).delete()
+         db.session.commit()
+         print('Deleted item with id from todo', todoId)
+      except Exception as e:
+         db.session.rollback()
+         print('Error while deleting!!!!', e)
+      finally:
+         db.session.close()
+      return jsonify({'success' : True})
+   ```
+
+   - index.html
+
+   ```
+   <!DOCTYPE html>
+   <html lang="en">
+
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Todo App</title>
+      <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap" rel="stylesheet">
+      <style>
+         .hidden {
+               color: red;
+               font-weight: 700;
+               display: none
+         }
+
+         .displayList {
+               display: grid;
+               grid-template-columns: 30% 70%;
+               grid-template-rows: auto;
+         }
+
+         form {
+               margin: 20px 0;
+         }
+
+         .form-wrapper {
+               display: flex;
+               justify-content: space-evenly;
+         }
+
+         label {
+               color: rgb(27, 97, 202);
+               text-transform: uppercase;
+               font-family: 'Roboto Condensed', sans-serif;
+         }
+
+         button {
+               width: 40px;
+               height: 30px;
+               background-color: rgba(252, 250, 245, 0.856);
+         }
+
+         a {
+               text-decoration: none;
+               color: blue;
+         }
+
+         h4 {
+               margin: unset;
+         }
+
+         #newList,
+         #description {
+               padding: 3px;
+               border-radius: 5px;
+               border-color: rgb(97, 150, 219);
+               box-shadow: none;
+         }
+
+         #listSubmit,
+         #submit {
+               color: white;
+               background-color: crimson;
+               border: 0;
+               padding: 6px;
+               border-radius: 5px;
+         }
+
+         ul.todos {
+               list-style-type: none;
+               margin-top: 20px;
+               padding: 5px;
+               display: grid;
+               grid-template-columns: 1fr;
+               grid-template-rows: 30px;
+         }
+
+         ul.lists {
+               list-style-type: none;
+               line-height: 2em;
+               padding-right: 10%;
+         }
+
+         li.todoLists {
+               display: grid;
+               grid-template-columns: 15% 70% 40px;
+               padding: 10px 2px;
+               align-items: baseline;
+         }
+
+         li.todoItems {
+               display: grid;
+               grid-template-columns: 25px 30% 30px;
+               grid-template-rows: 1fr;
+               padding: 5px;
+         }
+
+         button {
+               color: rgb(146, 13, 13);
+               border: none;
+         }
+      </style>
+   </head>
+
+   <body>
+      <div class="form-wrapper">
+         <form class="listForm">
+               <label for="newList">Add new List</label>
+               <input type="text" name="todoList" id="newList" required>
+               <input type="submit" id="listSubmit" value="Create List">
+         </form>
+         <form class="newTodo">
+               <div>
+                  <label for="description">Add Todo item</label>
+                  <input type="text" name="todoItem" id="description" required>
+                  <input type="submit" id="submit" value="Create Todo">
+               </div>
+         </form>
+      </div>
+
+      <div id="errorText" class="hidden">Something went wrong!</div>
+      <div class="displayList">
+         <ul class="lists">
+               <h4>Lists</h4>
+               {% for item in lists %}
+               <li class="todoLists">
+                  <input type="checkbox" data-id="l{{item.id}}" class="listCheck">
+                  <a href="/lists/{{item.id}}" id="listName">{{item.name}}</a>
+                  <button class="deleteList" data-id="{{item.id}}" type="button">&cross;</button>
+                  {% endfor %}
+               </li>
+         </ul>
+         <ul class="todos">
+               <!-- Jinja templating: for loop -->
+               <h4>{{active_list.name}}</h4>
+               {% for item in todos %}
+               <li class="todoItems">
+                  <input class="checkStatus" data-id="{{item.id}}" type="checkbox" {% if item.completed %} checked
+                     {% endif %}>{{item. description}}
+                  <button class="delete" data-id="{{item.id}}" type="button">&cross;</button>
+               </li>
+               {% endfor %}
+         </ul>
+      </div>
+
+
+      <!-- Prevent default form behavior -->
+      <script>
+         // handler for dynamic list items (handle delete & handle checked items)
+         function handleList(event) {
+               if (event.target.className === 'delete') {
+                  const buttonId = event.target.dataset['id']
+                  fetch('/todos/' + buttonId + '/delete', {
+                     method: 'DELETE',
+                  })
+                     .then(() => {
+                           document.getElementById('errorText').className = 'hidden'
+                           console.log('Got response from server')
+                           const itemToDelete = event.target.parentElement
+                           itemToDelete.remove()
+                     })
+                     .catch((err) => {
+                           console.log("Error >>> ", err)
+                           document.getElementById('errorText').className = ''
+                     })
+               } else if (event.target.className === 'checkStatus') {
+                  const isChecked = event.target.checked
+                  const todoId = event.target.dataset['id']
+                  console.log(todoId)
+                  fetch('/todos/' + todoId + '/completed', {
+                     method: 'POST',
+                     body: JSON.stringify({
+                           'completed': isChecked
+                     }),
+                     headers: {
+                           'Content-Type': 'application/json'
+                     }
+                  })
+                     .then(() => document.getElementById('errorText').className = 'hidden')
+                     .catch((err) => {
+                           console.log("Error >>> ", err)
+                           document.getElementById('errorText').className = ''
+                     })
+               } else if (event.target.className === 'deleteList') {
+                  console.log('Delete List clicked!')
+               }
+         }
+
+         // add event listener to the parent ul element
+         const todos = document.querySelector('.todos')
+         todos.addEventListener('click', handleList)
+
+         // create new todo DOM elements
+         document.querySelector('.newTodo').onsubmit = (e) => {
+               e.preventDefault();
+               const regex = /\/\d/
+               let itemCat = parseInt(document.URL.match(regex)[0].split('/').join(''))
+               fetch('/todos/create', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                     'description': document.getElementById('description').value,
+                     'category': itemCat
+                  }),
+                  headers: {
+                     'Content-Type': 'application/json'
+                  }
+               })
+                  .then(response => response.json())
+                  .then(data => {
+                     console.log('Data >>', data)
+                     const liItem = document.createElement('li')
+                     const checkLi = document.createElement('input')
+                     const delBtn = document.createElement('button')
+                     // set list attibutes
+                     liItem.className = 'todoItems'
+                     // set button attributes
+                     delBtn.className = 'delete'
+                     delBtn.type = 'button'
+                     delBtn.setAttribute('data-id', data.id)
+                     delBtn.innerHTML = '&cross;'
+                     // set list item attibutes
+                     checkLi.className = 'checkStatus'
+                     checkLi.setAttribute('data-id', data.id)
+                     checkLi.type = 'checkbox'
+                     const liText = document.createTextNode(data['description'])
+                     // Below line does not work; have to create a text node to get the input to be inside the li item
+                     // liItem.innerHTML = data['description']
+                     liItem.appendChild(checkLi)
+                     liItem.appendChild(liText)
+                     liItem.appendChild(delBtn)
+                     document.querySelector('.todos').appendChild(liItem)
+                     document.getElementById('errorText').className = 'hidden'
+                  })
+                  .catch((err) => {
+                     console.log("Error >>> ", err)
+                     document.getElementById('errorText').className = ''
+                  })
+         }
+
+         // create new list
+         document.querySelector('.listForm').onsubmit = (e) => {
+               e.preventDefault()
+               fetch('/lists/create', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                     'listName': document.getElementById('newList').value
+                  }),
+                  headers: {
+                     'Content-Type': 'application/json'
+                  }
+               }).then(response => response.json())
+                  .then(data => {
+                     console.log('Data', data)
+                     const liItem = document.createElement('li')
+                     const inputItem = document.createElement('input')
+                     const link = document.createElement('a')
+                     const delBtn = document.createElement('button')
+                     // set attributes for liItem
+                     li.className = 'todoLists'
+                     // set attributes for input 
+                     inputItem.type = 'checkbox'
+                     inputItem['data-id'] = 'l' + data.id
+                     inputItem.className = 'listCheck'
+                     // set attributes for link
+                     link.href = "/lists/" + data.id
+                     link['id'] = 'listName'
+                     link.innerHTML = data.listName
+                     // set attibutes for delBtn
+                     delBtn.className = 'deleteList'
+                     delBtn.type = 'button'
+                     delBtn.setAttribute('data-id', data.id)
+                     delBtn.innerHTML = '&cross;'
+                  })
+         }
+      </script>
+   </body>
+
+   </html>
+   ```
